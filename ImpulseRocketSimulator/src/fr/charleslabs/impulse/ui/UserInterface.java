@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 
 import fr.charleslabs.impulse.physics.PhysicsEngine;
@@ -35,21 +36,21 @@ final public class UserInterface extends JFrame implements Runnable,
 	private boolean isRunning = false;
 
 	// UI - Swing variables
-	private SidebarControlsPanel controls;
-	private RocketCreatorPanel creatorPanel;
+	private SidebarControlsPanel controls = new SidebarControlsPanel(this);
+	private RocketCreatorPanel creatorPanel= new RocketCreatorPanel(this);
 	private Rocket3DView view3D;
-	private GraphsPanel angularGraphPanel, linearGraphPanel;
+	private GraphsPanel angularGraphPanel= new GraphsPanel(1000.0d / refreshFrequency, "deg"), linearGraphPanel= new GraphsPanel(1000.0d / refreshFrequency, "m");
 
+	// Other variable
+	protected PhysicsEngine engine = new PhysicsEngine();
+	protected Rocket rocket;
+	
 	public UserInterface() throws HeadlessException {
 		super(R.windowTitle);
 		
 		// Load UI components
-		creatorPanel = new RocketCreatorPanel(this);
-		controls = new SidebarControlsPanel(this);
 		if (Rocket3DView.isCompatible())
 			view3D = new Rocket3DView();
-		angularGraphPanel = new GraphsPanel(1000.0d / refreshFrequency, "deg");
-		linearGraphPanel = new GraphsPanel(1000.0d / refreshFrequency, "m");
 
 		// Tabs
 		JTabbedPane tabs = new JTabbedPane();
@@ -80,8 +81,12 @@ final public class UserInterface extends JFrame implements Runnable,
 		this.setVisible(true);
 
 		// Prepare simulator
-		creatorPanel.setRocket(this,false);
-		controls.setPID();
+		try {
+			rocket = new Rocket();
+			engine.addObject(rocket);
+			creatorPanel.makeRocket(rocket);
+			controls.setPID(rocket);
+		} catch (Exception ignored) {}
 	}
 
 	// --- Thread management ---
@@ -111,22 +116,21 @@ final public class UserInterface extends JFrame implements Runnable,
 		this.setTitle(R.windowTitle + R.runningWindowTitle);
 
 		// Init. physics engine before simulation
-		PhysicsEngine ph = PhysicsEngine.getInstance();
-		ph.reset();
-		controls.addTorque();
+		engine.reset();
+		controls.addTorque(rocket);
 
 		// Simulation
-		ph.start();
-		while (isRunning && ph.isRunning()) {
+		engine.start(true);
+		while (isRunning && engine.isRunning()) {
 			try {
 				Thread.sleep(1000 / refreshFrequency);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			refreshView(ph.getRocket());
+			refreshView((Rocket)engine.getObjects().get(0));
 			this.repaint();
 		}
-		ph.stop();
+		engine.stop();
 
 		// Post-simulation
 		isRunning = false;
@@ -162,22 +166,35 @@ final public class UserInterface extends JFrame implements Runnable,
 		}
 		// Apply angle offset btn
 		else if (event.getSource() == controls.addTorqueBtn) {
-			controls.addTorque();
+			controls.addTorque(rocket);
 		}
 		// Connect to serial port btn
 		else if (event.getSource() == controls.serialConnectBtn) {
 			this.stop();
-			controls.serialConnect(this);
+			controls.serialConnect(this,rocket);
 		}
 		// PID Apply Btn
 		else if (event.getSource() == controls.pidApplyBtn) {
 			this.stop();
-			controls.setPID();
+			controls.setPID(rocket);
 		}
 		// Rocket create btn
 		else if (event.getSource() == creatorPanel.applyBtn) {
 			this.stop();
-			creatorPanel.setRocket(this,true);
+			try {
+				creatorPanel.makeRocket(rocket);
+				JOptionPane.showMessageDialog(this,
+						R.rocketCreateDialogMessage,
+						R.rocketCreateDialogTitle,
+						JOptionPane.INFORMATION_MESSAGE);
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(
+						this,
+						R.rocketCreateErrorDialogMessage
+								+ e.getMessage(),
+						R.rocketCreateErrorDialogTitle,
+						JOptionPane.WARNING_MESSAGE);
+			}
 		}
 	}
 }

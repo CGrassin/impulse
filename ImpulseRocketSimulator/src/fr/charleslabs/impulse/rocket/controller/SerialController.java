@@ -1,6 +1,8 @@
-package fr.charleslabs.impulse.controller;
+package fr.charleslabs.impulse.rocket.controller;
 
 import java.nio.charset.StandardCharsets;
+
+import fr.charleslabs.impulse.rocket.Rocket;
 
 import javafx.application.Platform;
 import jssc.SerialPort;
@@ -34,8 +36,8 @@ public class SerialController extends RocketController implements SerialPortEven
 	 * @throws SerialPortException
 	 *             If the connection fails this exception is thrown.
 	 */
-	public SerialController(final String serialPortName) throws SerialPortException {
-		super(0.00001d); // Frequency is very close to 0
+	public SerialController(final String serialPortName, Rocket rocket) throws SerialPortException {
+		super(0.00001d, rocket); // Frequency is very close to 0
 		serialPort = new SerialPort(serialPortName);
 		serialPort.openPort();
 

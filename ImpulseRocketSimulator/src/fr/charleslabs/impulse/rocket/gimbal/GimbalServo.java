@@ -1,4 +1,4 @@
-package fr.charleslabs.impulse.gimbal;
+package fr.charleslabs.impulse.rocket.gimbal;
 
 /**
  * This class is a thruster gimbal, where the displacement

@@ -13,17 +13,14 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import fr.charleslabs.impulse.gimbal.GimbalServo;
-import fr.charleslabs.impulse.motor.MotorDataBase;
-import fr.charleslabs.impulse.physics.PhysicsEngine;
+import fr.charleslabs.impulse.rocket.gimbal.GimbalServo;
+import fr.charleslabs.impulse.rocket.motor.MotorDataBase;
 import fr.charleslabs.impulse.rocket.Rocket;
 
 /**
@@ -121,7 +118,7 @@ public class RocketCreatorPanel extends JPanel implements ItemListener {
 	 * @throws Exception if the Rocket object
 	 * could not be created (parameter issue).
 	 */
-	private Rocket makeRocket() throws Exception {
+	void makeRocket(Rocket rocket) throws Exception {
 		final double mass = (Double) massSpinner.getValue();
 		final double height = (Double) lengthSpinner.getValue();
 		final double comHeight = isCoMCenteredCB.isSelected() ? height / 2
@@ -129,39 +126,12 @@ public class RocketCreatorPanel extends JPanel implements ItemListener {
 		final double maxGimbalAngle = (Double) gimbalMaxAngleSpinner.getValue();
 		final double speedGimbal = (Double) gimbalSpeedSpinner.getValue();
 		
-		return new Rocket(MotorDataBase.getInstance().getMotor((String) this.motorList
-				.getSelectedItem()), 
-				new GimbalServo(maxGimbalAngle,speedGimbal), mass, height,
+		rocket.setParameters(
+				MotorDataBase.getInstance().getMotor((String) this.motorList.getSelectedItem()), 
+				new GimbalServo(maxGimbalAngle,speedGimbal), 
+				mass, 
+				height,
 				comHeight);
-	}
-	
-	/**
-	 * Sets the rocket of the physical engine based on
-	 * configuration of this panel. Displays either a
-	 * dialog if the boolean isDialogPrinted is true.
-	 * 
-	 * @param parent The calling JFrame.
-	 * @param isDialogPrinted Selects whether a dialog will
-	 * be displayed. It can either be confirmation, or 
-	 * error.
-	 */
-	protected void setRocket(final JFrame parent, final boolean isDialogPrinted) {
-		try {
-			PhysicsEngine.getInstance().setRocket(this.makeRocket());
-			if (isDialogPrinted)
-				JOptionPane.showMessageDialog(parent,
-						R.rocketCreateDialogMessage,
-						R.rocketCreateDialogTitle,
-						JOptionPane.INFORMATION_MESSAGE);
-		} catch (Exception e) {
-			if (isDialogPrinted)
-				JOptionPane.showMessageDialog(
-						parent,
-						R.rocketCreateErrorDialogMessage
-								+ e.getMessage(),
-						R.rocketCreateErrorDialogTitle,
-						JOptionPane.WARNING_MESSAGE);
-		}
 	}
 	
 	/**

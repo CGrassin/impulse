@@ -1,5 +1,6 @@
-package fr.charleslabs.impulse.controller;
+package fr.charleslabs.impulse.rocket.controller;
 
+import fr.charleslabs.impulse.rocket.Rocket;
 import fr.charleslabs.simplypid.SimplyPID;
 
 /**
@@ -21,8 +22,8 @@ public class PIDRocketController extends RocketController {
 	 * @param ki The integral gain coefficient.
 	 * @param kd The derivative gain coefficient.
 	 */
-	public PIDRocketController(final double frequency,final double kp,final double ki,final double kd) {
-		super(frequency);
+	public PIDRocketController(final double frequency, final Rocket rocket,final double kp,final double ki,final double kd) {
+		super(frequency,rocket);
 		pidX = new SimplyPID(0,kp, ki, kd);
 		pidY = new SimplyPID(0,kp, ki, kd);
 	}

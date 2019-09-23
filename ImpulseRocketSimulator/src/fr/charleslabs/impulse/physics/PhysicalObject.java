@@ -9,7 +9,7 @@ package fr.charleslabs.impulse.physics;
  * 
  * @author Charles Grassin
  */
-public abstract class PhysicalObject {
+public abstract class PhysicalObject{
 	private final static String INVALID_MASS_EXCEPTION = "Mass must be > 0";
 	/** The mass of the physical object, in kg */
 	protected double mass;
@@ -22,6 +22,8 @@ public abstract class PhysicalObject {
 	
 	/** The angular motion position, speed and acceleration matrix. */
 	protected PhysicsMatrix angularMotion = new PhysicsMatrix();
+
+	public abstract boolean isSimulationOver();
 
 	/**
 	 * Constructs a physical object with a given mass and momentOfInertia
@@ -111,6 +113,10 @@ public abstract class PhysicalObject {
 	 * Called on simulation start-up.
 	 */
 	public abstract void init();
+	/**
+	 * Called on simulation end.
+	 */
+	public abstract void stop();
 
 	/**
 	 * Resets the position and angle of the object.
@@ -138,7 +144,7 @@ public abstract class PhysicalObject {
 	public boolean isLanded() {
 		return linearMotion.position.z < 0;
 	}
-
+	
 	// --- Getters and Setters ---
 	public PhysicsMatrix getLinearMotion() {
 		return linearMotion;

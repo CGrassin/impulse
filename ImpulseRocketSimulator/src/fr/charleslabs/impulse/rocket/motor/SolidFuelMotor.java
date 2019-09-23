@@ -1,4 +1,4 @@
-package fr.charleslabs.impulse.motor;
+package fr.charleslabs.impulse.rocket.motor;
 
 /**
  * This class represents a SRB (solid rocket

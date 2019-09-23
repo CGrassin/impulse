@@ -1,4 +1,4 @@
-package fr.charleslabs.impulse.gimbal;
+package fr.charleslabs.impulse.rocket.gimbal;
 
 /**
  * A basic thrust gimbal class. Gimbal

@@ -1,4 +1,4 @@
-package fr.charleslabs.impulse.motor;
+package fr.charleslabs.impulse.rocket.motor;
 
 /**
  * A RocketMotor delivers thrust.
@@ -11,4 +11,6 @@ public abstract class RocketMotor {
 	 * @param currentTime Time since epoch.
 	 */
 	abstract public double getThrust(final double currentTime);
+	
+	public void reset() {}
 }

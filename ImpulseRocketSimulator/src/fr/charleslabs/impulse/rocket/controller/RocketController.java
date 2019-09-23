@@ -1,4 +1,4 @@
-package fr.charleslabs.impulse.controller;
+package fr.charleslabs.impulse.rocket.controller;
 
 import fr.charleslabs.impulse.rocket.Rocket;
 
@@ -25,8 +25,9 @@ public abstract class RocketController {
 	 * @param updateFrequency
 	 *            Frequency at which the controller is refreshed (in Hz).
 	 */
-	public RocketController(final double updateFrequency) {
+	public RocketController(final double updateFrequency, final Rocket rocket) {
 		this.setUpdateFrequency(updateFrequency);
+		this.rocket = rocket;
 	}
 	
 	/** Called at a fixed frequency. */
@@ -70,13 +71,8 @@ public abstract class RocketController {
 		return updateFrequency;
 	}
 	
-	/** Sets the period of the controller, in seconds. */
+	/** Sets the frequency of the controller, in Hz. */
 	final public void setUpdateFrequency(final double updateFrequency) {
 		this.updateFrequency = updateFrequency;
-	}
-	
-	/** Sets the frequency of the controller, in Hz. */
-	public void setRocket(final Rocket rocket) {
-		this.rocket = rocket;
 	}
 }

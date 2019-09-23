@@ -17,9 +17,8 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
-import fr.charleslabs.impulse.controller.PIDRocketController;
-import fr.charleslabs.impulse.controller.SerialController;
-import fr.charleslabs.impulse.physics.PhysicsEngine;
+import fr.charleslabs.impulse.rocket.controller.PIDRocketController;
+import fr.charleslabs.impulse.rocket.controller.SerialController;
 import fr.charleslabs.impulse.rocket.Rocket;
 import jssc.SerialPortException;
 
@@ -92,7 +91,7 @@ public class SidebarControlsPanel extends JPanel {
 		pidApplyBtn.setToolTipText(R.setPIDBtnTooltip);
 		
 		// Generate 
-		controls.add(RocketCreatorPanel.categoryTitle("Rocket controller"), gbc);
+		controls.add(RocketCreatorPanel.categoryTitle(R.controllerTitle), gbc);
 		controls.add(fieldWithLabel(pSpinner, "Kp"), gbc);
 		controls.add(fieldWithLabel(iSpinner, "Ki"), gbc);
 		controls.add(fieldWithLabel(dSpinner, "Kd"), gbc);
@@ -103,7 +102,7 @@ public class SidebarControlsPanel extends JPanel {
 		controls.add(orLabel, gbc);
 
 		controls.add(serialConnectBtn, gbc);
-		controls.add(RocketCreatorPanel.categoryTitle("Add force"), gbc);
+		controls.add(RocketCreatorPanel.categoryTitle(R.addOffsetTitle), gbc);
 		controls.add(fieldWithLabel(xAxisUserTorque, "x"), gbc);
 		controls.add(fieldWithLabel(yAxisUserTorque, "y"), gbc);
 		controls.add(addTorqueBtn, gbc);
@@ -134,8 +133,9 @@ public class SidebarControlsPanel extends JPanel {
 	 * 
 	 * @return A PID controller, form the fields.
 	 */
-	private PIDRocketController createPID() {
+	private PIDRocketController createPID(final Rocket rocket) {
 		return new PIDRocketController((Double) this.frequencySpinner.getValue(),
+				rocket,
 				(Double) this.pSpinner.getValue(),
 				(Double) this.iSpinner.getValue(),
 				(Double) this.dSpinner.getValue());
@@ -144,12 +144,12 @@ public class SidebarControlsPanel extends JPanel {
 	/**
 	 * Sets the PID 
 	 */
-	protected void setPID(){
+	protected void setPID(Rocket rocket){
 		if(isSerialConnected) {
 			isSerialConnected = false;
 			serialConnectBtn.setText(R.serialBtnTitle);
 		}
-		PhysicsEngine.getInstance().setController(this.createPID());
+		rocket.setController(this.createPID(rocket));
 	}
 	
 	/**
@@ -171,9 +171,9 @@ public class SidebarControlsPanel extends JPanel {
 		return s;
 	}
 	
-	protected void serialConnect(final JFrame caller) {
+	protected void serialConnect(final JFrame caller,Rocket rocket) {
 		if(isSerialConnected) {
-			this.setPID();
+			this.setPID(rocket);
 			isSerialConnected = false;
 			serialConnectBtn.setText(R.serialBtnTitle);
 			return;
@@ -183,8 +183,8 @@ public class SidebarControlsPanel extends JPanel {
 				.serialPortSelectionDialog(caller);
 		if (serialPort != null)
 			try {
-				PhysicsEngine.getInstance().setController(
-						new SerialController(serialPort));
+				rocket.setController(
+						new SerialController(serialPort,rocket));
 				isSerialConnected = true;
 				serialConnectBtn.setText(R.serialStopBtnTitle);
 				
@@ -208,8 +208,7 @@ public class SidebarControlsPanel extends JPanel {
 		return panel;
 	}
 
-	public void addTorque() {
-		Rocket rocket = PhysicsEngine.getInstance().getRocket();
+	public void addTorque(Rocket rocket) {
 		if(rocket != null){
 			rocket.getAngularMotion().position.x += (Double) this.xAxisUserTorque.getValue();
 			rocket.getAngularMotion().position.y += (Double) this.yAxisUserTorque.getValue();

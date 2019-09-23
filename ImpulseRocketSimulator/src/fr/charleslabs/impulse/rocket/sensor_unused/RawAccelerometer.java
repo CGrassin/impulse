@@ -1,4 +1,4 @@
-package fr.charleslabs.impulse.sensor;
+package fr.charleslabs.impulse.rocket.sensor_unused;
 
 import fr.charleslabs.impulse.rocket.Rocket;
 

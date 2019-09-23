@@ -1,4 +1,4 @@
-package fr.charleslabs.impulse.motor;
+package fr.charleslabs.impulse.rocket.motor;
 
 import java.io.BufferedReader;
 import java.io.IOException;

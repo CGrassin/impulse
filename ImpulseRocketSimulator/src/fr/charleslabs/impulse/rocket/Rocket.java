@@ -1,10 +1,10 @@
 package fr.charleslabs.impulse.rocket;
 
-import fr.charleslabs.impulse.gimbal.Gimbal;
-import fr.charleslabs.impulse.motor.RocketMotor;
+import fr.charleslabs.impulse.rocket.controller.RocketController;
+import fr.charleslabs.impulse.rocket.motor.RocketMotor;
 import fr.charleslabs.impulse.physics.PhysicalObject;
-import fr.charleslabs.impulse.physics.PhysicsEngine;
 import fr.charleslabs.impulse.physics.PhysicsVector;
+import fr.charleslabs.impulse.rocket.gimbal.Gimbal;
 
 /**
  * A Rocket implements a PhysicalObject to compute
@@ -20,6 +20,8 @@ public class Rocket extends PhysicalObject {
 	private RocketMotor rocketMotor;
 	/** A gimbal that swivels the direction of thrust. */
 	private Gimbal gimbal;
+	private RocketController controller;
+	
 	// private double rocketLength; // in m
 	/** The distance between the motor nozzle and the CoM, in m. */
 	private double centerOfMassHeight;
@@ -35,21 +37,27 @@ public class Rocket extends PhysicalObject {
 	 *            distance from the thruster to the top of te rocket, in m
 	 * @param centerOfMassHeigth
 	 *            distance from the thruster to the center of mass, in m
+	 * @return 
 	 * @throws Exception If the Rocket is invalid.
 	 */
-	public Rocket(final RocketMotor rocketMotor, final Gimbal gimbal,
+	public void setParameters(final RocketMotor rocketMotor, final Gimbal gimbal,
 			final double rocketMass, final double rocketLength,
 			final double centerOfMassHeigth) throws Exception {
-		super(rocketMass, new PhysicsVector(computeMomentOfInertia(
+		this.mass = rocketMass;
+		this.momentOfInertia = new PhysicsVector(computeMomentOfInertia(
 				rocketLength, rocketMass, centerOfMassHeigth),
 				computeMomentOfInertia(rocketLength, rocketMass,
-						centerOfMassHeigth), 1));
+						centerOfMassHeigth), 1);
 		if (rocketLength < centerOfMassHeigth)
 			throw new Exception(INVALID_COM_EXCEPTION);
 		this.rocketMotor = rocketMotor;
 		this.gimbal = gimbal;
 		// this.rocketLength = rocketLength;
 		this.centerOfMassHeight = centerOfMassHeigth;
+	}
+
+	public Rocket() throws Exception {
+		super(1,new PhysicsVector(1,1,1));
 	}
 
 	/**
@@ -70,9 +78,10 @@ public class Rocket extends PhysicalObject {
 
 	@Override
 	public void computeCinematics(final double currentT, final double deltaT) {
-
 		if (gimbal != null)
 			gimbal.compute(deltaT);
+		if(controller != null)
+			controller.compute(currentT);
 		super.computeCinematics(currentT, deltaT);
 	}
 
@@ -107,15 +116,23 @@ public class Rocket extends PhysicalObject {
 		return new PhysicsVector(
 				thrust * tan(angularMotion.position.y) / u / v, thrust
 						* tan(angularMotion.position.x) / u / v, thrust / u / v
-						- PhysicsEngine.G_CONSTANT * mass);
+						- 9.81 * mass);
 	}
 
+	@Override
+	public boolean isSimulationOver() {
+		return this.isLanded();
+	}
+	
 	@Override
 	public void reset() {
 		super.reset();
 		if (gimbal != null)
 			gimbal.reset();
-
+		if(controller != null)
+			controller.reset();
+		if(rocketMotor != null)
+			rocketMotor.reset();
 	}
 
 	@Override
@@ -123,14 +140,26 @@ public class Rocket extends PhysicalObject {
 		this.linearMotion.position.z = 1;
 		if (gimbal != null)
 			gimbal.init();
+		if(rocketMotor != null)
+			rocketMotor.reset();
+		if(controller != null)
+			controller.reset();
 	}
-
-	private double tan(final double angle) {
+	
+	@Override
+	public void stop() {
+		controller.stop();
+	}
+	
+	private static double tan(final double angle) {
 		return Math.tan(Math.toRadians((Math.abs(angle) > 90) ? 180 - angle
 				: angle));
 	}
 
 	public void loadFromFile() {
+		// TODO : add rocket load from a file
+	}
+	public void saveToFile() {
 		// TODO : add rocket load from a file
 	}
 
@@ -143,6 +172,9 @@ public class Rocket extends PhysicalObject {
 		return gimbal;
 	}
 
+	public void setController(RocketController controller) {
+		this.controller = controller;
+	}
 	public void setRocketMotor(final RocketMotor rocketMotor) {
 		this.rocketMotor = rocketMotor;
 	}
@@ -150,4 +182,6 @@ public class Rocket extends PhysicalObject {
 	public void setGimbal(final Gimbal gimbal) {
 		this.gimbal = gimbal;
 	}
+
+
 }
