@@ -1,0 +1,142 @@
+ <!DOCTYPE html>
+<html>
+<body>
+
+<h1>Help - Impulse V0.1</h1>
+
+<h2>Introduction</h2>
+
+<p>Impulse is a real-time physics simulator for gimbaled thrust rockets. It is a useful tool
+for the design phase of the rocket and the controller algorithm tests and validation.</p>
+
+<p><strong>Warning:</strong> aerodynamic forces are not implemented yet
+in this simulator.</p>
+
+<h2>Quick start guide</h2>
+
+<p>This paragraph describes how to start a simulation with a custom rocket.</p>
+<ol>
+	<li>Create the rocket.</li>
+	<ol>
+		<li>Open the "Rocket Settings" tab;</li>
+		<li>Change the settings according to your needs 
+		(see the "Rocket settings" help, below);</li>
+		<li>Click on the "Apply" button.</li>	
+	</ol>
+	<li>Set up the controller: configure the PID controller and click the 
+	"Set PID" button, or connect to a rocket controller board through a
+	serial link, with the "Connect..." button (see the "Controller
+	 settings" help, below).</li>
+	<li>Launch the real-time simulation by clicking the "Launch" button.
+	It stops when the rocket touches the ground, or when the "Stop" button
+	is pressed.</li>	
+</ol>
+
+<h2>The interface</h2>
+
+<p>There are 5 tabs:</p>
+<ul>
+	<li><strong>Angular motion:</strong> the 3 graphs display the real-time angular kinetics
+	of the rocket (acceleration, speed and angle);</li>
+	<li><strong>Linear motion:</strong> the 3 graphs display the real-time linear kinetics
+	of the rocket (acceleration, speed and position);</li>
+	<li><strong>3D view:</strong> a more user-friendly 3D visualization of the flight of the 
+	simulated rocket;</li>
+	<li><strong>Rocket settings:</strong> the configuration of the simulated rocket (mass,
+	size, motor, etc.). All these variables are detailed below;</li>
+	<li><strong>Help:</strong> the current tab, with information about the simulator.</li>
+</ul>
+<p>To get quick information about a specific menu/button, hover it with the mouse for about
+3s. A tooltip will pop-up and provide quick instructions.</p>
+
+<h2>Rocket settings</h2>
+
+<p>In Impulse, a Rocket is made of 3 parts: a cylindrical body, a thruster and a thruster gimbal.
+The rocket configuration is in the "Rocket Settings" tab.</p>
+<ul>
+	<li><strong>Total mass:</strong> the mass of the rocket, in kilograms, including the motor;</li>
+	<li><strong>Length:</strong> the total length of the rocket, from the thruster to the cone, in meters;</li>
+	<li><strong>Rocket center of mass is centered?:</strong> the checkbox selects whether the CoM
+	is assumed to be in the center of the rocket, or if you wish to set a more precise location. I
+	strongly recommend to unchecked this and enter the real CoM position
+	as it may have a strong impact on the effect of the thrust gimbal torque;</li>
+	<li><strong>CoM height:</strong> only displayed if the checkbox is unchecked. The position of the CoM, 
+	relative to the thruster, in meters. It can be precisely measured using CAD software or the real rocket;</li>
+	<li><strong>Body diameter:</strong> the diameter of the cylindrical body of the rocket, in meters;</li>
+	<li><strong>Motor:</strong> the thruster used to power the rocket. This list comes from the "motors.json"
+	database in the Impulse.jar file. Any motor can be added with a custom thrust curve;</li>
+	<li><strong>Gimbal max. angle:</strong> the maximum angular displacement the gimbal can perform.
+	It is assumed to be symmetrical (i.e. 20 means that the gimbal can move from -20 to 20 degrees in 
+	both X and Y axes);</li>
+	<li><strong>Gimbal speed:</strong> the angular displacement speed of the gimbal, in degrees per 
+	second. For instance, if you use servomotors, a typical speed should be indicated in their
+	datasheet;</li>
+</ul>
+
+<p>Once the rocket model is fully configured, press "Apply" to create the rocket. A confirmation dialog
+is displayed. It there are errors in the parameters, an error dialog is displayed, and the rocket is
+not created.</p>
+
+<h2>Controller settings</h2>
+
+<p>The rocket controller is what moves the thrust gimbal to achieve stable flight.</p>
+
+<h3>PID controller</h3>
+
+<p>A <strong>proportional-integral-derivative controller</strong> (PID controller) is a control 
+loop feedback mechanism widely used in industrial control systems and a variety 
+of other applications requiring continuously modulated control.</p>
+
+<p>Because it is the most commonly used controller, this simulator directly
+implements it. Using the controls in the side-bar, the 4 coefficient can be
+tweaked: Kp, Ki, Kd and its refresh frequency.</p>
+
+<p>Please note that this functionality is not the way the simulator is 
+supposed to be used. The recommended way is to use the serial controller
+to validate the control algorithm on the real rocket hardware.</p>
+
+<h3>Serial controller</h3>
+
+<p>The serial controller is probably the most useful feature of this simulator.
+It allows to code the control algorithm on the real rocket hardware, and to simulate
+flight with this software.</p>
+
+<p>This is how it works: the rocket micro-controller is connected to the computer
+with a serial link. It can query data of the simulated rocket (angle, acceleration, etc.)
+and send commands (eg. turn the gimbal to 15 degrees).</p>
+
+<p>These are the available commands (115200 baud, 8 bits, 1 stop bit, no parity bit):</p>
+<ul>
+	<li>"G": query the simulator the rocket attitude (angular position);</li>
+	<li>"A": query the simulator the rocket linear acceleration;</li>
+	<li>"B": query the simulator the rocket altitude;</li>
+	<li>"GX 10.5": set the X thrust gimbal angle to 10.5 degrees;</li>
+	<li>"GY 10.5": set the Y thrust gimbal angle to 10.5 degrees.</li>
+</ul>
+
+<p>A command must be followed by a line feed character (\n). In Arduino language, this is
+done with the Serial.println function.</p>
+
+<p>When answering a query, the simulator repeats the instruction and then delivers the output.</p>
+
+<!--<p>Additionally, the simulator automatically sends "LAUNCH" when the
+launch button is pressed, and "STOP" when the simulation stops.</p>-->
+
+<h2>License</h2>
+
+<p>Impulse is free and open-source software created by <strong>
+Charles Grassin</strong>. Its Java code is licensed under MIT license.
+ It uses the following open-source libraries:</p>
+ 
+<ul>
+	<li><strong>JSSC</strong>: serial-port communication library by Alexey Sokolov (LGPL license)</li>
+	<li><strong>minimal-json</strong>: fast and minimal JSON parser and writer by Ralf Sternberg (MIT license)</li>
+	<li><strong>DarculaLaf</strong>: great Swing Look and Feel by Konstantin Bulenkov (Apache 2 license)</li>
+	<li><strong>SimplePID</strong>: PID controller library by Charles Grassin (MIT license)</li>
+</ul>
+
+<p>The logo and other non-code resources are licensed under 
+<strong>CC BY 4.0</strong> (Creative Commons Attribution 4.0 International).</p>
+
+</body>
+</html> 

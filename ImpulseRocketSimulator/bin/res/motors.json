@@ -1,0 +1,14 @@
+[
+	{
+		"name":"Klima D3-P",
+		"type":"SolidFuelMotor",
+		"burnTime":4.5,
+		"thrust":[2,8,3,3.1,3.4,2.8,3,3.1,2.9]
+	},
+	{
+		"name":"Default 3N",
+		"type":"SolidFuelMotor",
+		"burnTime":4.5,
+		"thrust":[3]
+	}
+]
